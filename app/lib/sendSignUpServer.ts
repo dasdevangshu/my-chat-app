@@ -6,6 +6,7 @@ export async function sendSignUpServer(username: string, password: string) {
   try {
     //console.log('Username and password: ', username, password)
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+    console.log("got this", appUrl)
     const prom = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/signup/credentials`, {
       method: 'POST',
       headers: {
