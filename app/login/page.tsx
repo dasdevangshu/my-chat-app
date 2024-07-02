@@ -190,7 +190,7 @@ export default function LogIn() {
                     </div>
 
                     <div className=" w-full flex flex-col items-center">
-                        <p className={pStyle}>Don't have an account?</p>
+                        <p className={pStyle}>Don&apos;t have an account?</p>
                         <Link className="w-full" href='/signup'>
                             <button className={buttonStyle}>SignUp</button>
                         </Link>
