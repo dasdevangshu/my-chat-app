@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 
 import { useCookies } from 'next-client-cookies';
 
-import { z, ZodError } from 'zod';
+import { set, z, ZodError } from 'zod';
 
 import { getSocket, disconnectSocket } from '../lib/socket'
 import { Socket } from 'socket.io-client';
@@ -58,7 +58,7 @@ const backIcon = <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 
 
 export default function Chat() {
 
-  
+
   const router = useRouter()
   const cookies = useCookies();
 
@@ -81,6 +81,9 @@ export default function Chat() {
   const [acceptedConversationReqs, setAcceptedConversationReqs] = useState<ConversationReq[]>([])
   const [pendingConversationReqs, setPendingConversationReqs] = useState<ConversationReq[]>([])
 
+  const [requestFetched, setRequestFetched] = useState(false)
+  const [newAcceptedRequest, setNewAcceptedRequest] = useState({ isAdded: true, data: null })
+
   const [curChat, setCurChat] = useState('')
   const [allChats, setAllChats] = useState<any>()
   const [hasMoreChats, setHasMoreChats] = useState<any>()
@@ -95,7 +98,7 @@ export default function Chat() {
 
   const smallScreenHeader = showSideBar ? <nav className='w-full py-2 dark:bg-slate-950 bg-slate-200 border-b border-teal-400 dark:border-teal-800 flex sm:hidden items-center justify-center'>
     <div className='flex px-8 flex-grow items-center justify-between'>
-    <Link href='/'><h1 className='dark:text-teal-50 text-slate-500 select-none text-xl font-bold'>myChatApp</h1></Link>
+      <Link href='/'><h1 className='dark:text-teal-50 text-slate-500 select-none text-xl font-bold'>myChatApp</h1></Link>
       <SwitchDarkLight />
     </div>
   </nav> : <nav className='px-8 py-2 dark:bg-slate-950 bg-slate-200 border-b border-teal-400 dark:border-teal-800 flex sm:hidden items-center justify-center'>
@@ -120,7 +123,6 @@ export default function Chat() {
   async function checkAuth() {
     // console.log('Checking Auth')
     try {
-      setLoading(true)
       const prom = await fetch(`${process.env.NEXT_PUBLIC_API_URL}`, {
         method: 'GET',
         headers: {
@@ -136,8 +138,6 @@ export default function Chat() {
     }
     catch (e) {
       console.log(e)
-    } finally {
-      setLoading(false)
     }
   }
 
@@ -158,18 +158,19 @@ export default function Chat() {
         const resChatData = resChat.data
         resChatData.reverse()
 
+        //console.log('Found this has more:', resChat.hasMore, resChat.lastId)
+
         allChats[name] = resChatData
         hasMoreChatsInfo[name] = { hasMore: resChat.hasMore, lastId: resChat.lastId }
       }
+
+      //console.log('Setting these:', allChats)
 
       setAllChats(allChats)
       setHasMoreChats(hasMoreChatsInfo)
     }
     catch (e) {
       console.log(e)
-    }
-    finally {
-      setLoading(false)
     }
   }
 
@@ -296,6 +297,7 @@ export default function Chat() {
       const res = await prom.json()
       //console.log('Got these accepted conversation reqs:', res)
       setAcceptedConversationReqs(res)
+
     }
     catch (e) {
       console.log(e)
@@ -336,6 +338,18 @@ export default function Chat() {
         return prev.filter((item) => item._id !== convoId)
       })
       setAcceptedConversationReqs((prev) => [...prev, res.data])
+
+      setHasMoreChats((prev: any) => {
+        let newHasMoreData = { ...prev }
+        newHasMoreData[res.data.from] = { hasMore: false, lastId: null }
+        return newHasMoreData
+      })
+
+      setAllChats((prev: any) => {
+        let newData: any = JSON.parse(JSON.stringify(prev));
+        newData[res.data.from] = []
+        return newData;
+      })
       acceptConversationReqSocket(res.data.from, res.data)
 
     }
@@ -395,18 +409,60 @@ export default function Chat() {
   }
 
   useEffect(() => {
-    checkAuth()
+    async function checkAuthAsync() {
+      await checkAuth()
+    }
+
+    try {
+      setLoading(true)
+      checkAuthAsync()
+    }
+    catch (e) {
+      console.log(e)
+    }
+    // finally {
+    //   setLoading(false)
+    // }
+
   }, [])
 
   useEffect(() => {
-    if (acceptedConversationReqs.length > 0) {
-      getInitialChats()
+    async function getInitialChatsAsync() {
+      await getInitialChats()
     }
-  }, [acceptedConversationReqs])
+
+    if (requestFetched) {
+      try {
+        setLoading(true)
+        getInitialChatsAsync()
+      }
+      catch (e) {
+        console.log(e)
+      }
+      // finally {
+      //   console.log('Making loading false..., ', allChats, hasMoreChats)
+
+      //   setLoading(false)
+      // }
+    }
+  }, [requestFetched])
+
+  useEffect(() => {
+    // console.log('Running for', allChats, hasMoreChats, loading)
+    if (allChats && hasMoreChats) {
+      setLoading(false)
+    }
+  }, [allChats, hasMoreChats, loading])
 
   // Socket Stuff
 
   useEffect(() => {
+    async function GetRequests() {
+      await getPendingConversationReqs();
+      await getAcceptedConversationReqs();
+      setRequestFetched(true)
+    }
+
     if (user) {
       const socketInstance: Socket = getSocket();
 
@@ -421,8 +477,12 @@ export default function Chat() {
       });
 
       socketInstance.on('receive_new_message', (data) => {
-        //console.log('New message from:', data.from, data)
-        setAllChats((prev: any) => { const newData = { prev, [data.from]: [...prev[data.from], data] }; return newData })
+        console.log('New message from:', data.from, data)
+        setAllChats((prev: any) => {
+          let newData = { ...prev};
+          newData[data.from] = [...prev[data.from], data]
+          return newData
+        })
       })
 
       socketInstance.on('receive_new_req', (data) => {
@@ -432,18 +492,55 @@ export default function Chat() {
 
       socketInstance.on('update_accepted_req', (data) => {
         //console.log('Convo Req accepted:', data)
-        setAcceptedConversationReqs(prev => [...prev, data.data])
+
+
+
+        setHasMoreChats((prev: any) => {
+          let newHasMoreData = { ...prev }
+          newHasMoreData[data.data.to] = { hasMore: false, lastId: null }
+          // console.log('Has More Data', prev, data, newHasMoreData)
+          return newHasMoreData
+        })
+
+        setAllChats((prev: any) => {
+          // let newData: any = JSON.parse(JSON.stringify(prev));
+          let newData = { ...prev }
+          newData[data.data.to] = []
+          console.log('All Chat Data', prev, data, newData)
+          return newData;
+        })
+
+        setNewAcceptedRequest({ isAdded: false, data: data.data })
       })
 
-      getPendingConversationReqs();
-      getAcceptedConversationReqs();
-
+      try {
+        setLoading(true)
+        GetRequests()
+      }
+      catch (e) {
+        console.log(e)
+      }
+      // finally {
+      //   setLoading(false)
+      // }
       // Cleanup function to disconnect the socket on unmount
       return () => {
         disconnectSocket();
       };
     }
   }, [user]);
+
+  useEffect(() => {
+    // console.log('Changed so called', newAcceptedRequest, allChats, hasMoreChats)
+
+    if (!newAcceptedRequest.isAdded) {
+      // console.log('Adding to Acceppted Req')
+      setAcceptedConversationReqs(prev => [...prev, newAcceptedRequest.data as any])
+
+    }
+    setNewAcceptedRequest({ isAdded: true, data: null })
+
+  }, [allChats, hasMoreChats])
 
   useEffect(() => {
     validateUsername()

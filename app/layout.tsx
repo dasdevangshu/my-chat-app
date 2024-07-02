@@ -28,7 +28,7 @@ export default function RootLayout({
             disableTransitionOnChange
           >
             <Navbar />
-            <div className="flex-grow overflow-y-scroll dark:bg-slate-950 bg-slate-200">
+            <div className="flex-grow overflow-y-auto dark:bg-slate-950 bg-slate-200">
               {children}
             </div>
           </ThemeProvider>

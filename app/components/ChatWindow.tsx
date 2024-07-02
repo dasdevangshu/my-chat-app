@@ -4,7 +4,7 @@ import { useState } from 'react'
 export default function ChatWindow(props: any) {
 
     const [curMessage, setCurMessage] = useState('')
-    
+    //console.log('ChatWindow props', props)
     const name = props.name
     const messages = props.messages
     const hasMore = props.hasMoreInfo.hasMore
@@ -40,7 +40,7 @@ export default function ChatWindow(props: any) {
 
     return (
         <div className='flex flex-col flex-grow overflow-hidden'>
-            <div className='flex-grow flex flex-col-reverse p-2 gap-2 overflow-y-scroll'>
+            <div className='flex-grow flex flex-col-reverse p-2 gap-2 overflow-y-auto'>
                 {[...messagesComp].reverse()}
                 <button className="dark:text-teal-50 text-slate-500  p-2 text-center bg-slate-300 dark:bg-slate-900 rounded" disabled={!hasMore} onClick={() => getMoreChats(name, lastId)}>{hasMore ? 'See more messages...': 'No more messages...'}</button>
             </div>
