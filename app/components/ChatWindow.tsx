@@ -1,43 +1,57 @@
 'use client'
-
-import { useState } from "react"
+import { useState } from 'react'
 
 export default function ChatWindow(props: any) {
-    //console.log('Chat Window Props', props)
+
+    const [curMessage, setCurMessage] = useState('')
+    
     const name = props.name
-    const sendMessage = props.sendMessage
     const messages = props.messages
     const hasMore = props.hasMoreInfo.hasMore
     const lastId = props.hasMoreInfo.lastId
-
+    const sendMessage = props.sendMessage
     const getMoreChats = props.getMoreChats
 
-    // console.log('Has more Info ChatBox', hasMore)
-    
-    const messagesComp = messages.map((message : any) => {
-        const sideStyle = message.to === name ? 'bg-green-300 mr-2 ml-32' : 'bg-slate-300 ml-2 mr-32'
+    const sendIcon = <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="size-6 text-slate-500 dark:text-teal-50 group-disabled:text-slate-400 group-disabled:hover:text-slate-400 dark:group-disabled:text-slate-700 dark:group-disabled:hover:text-slate-700 group-disabled:hover:scale-100 group-enabled:hover:text-teal-400 hover:scale-110 transition duration-300 ease-in-out">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M6 12 3.269 3.125A59.769 59.769 0 0 1 21.485 12 59.768 59.768 0 0 1 3.27 20.875L5.999 12Zm0 0h7.5" />
+    </svg>
 
-        return <div className={'p-2 border ' + sideStyle} key={message._id}>
-        <h1>{message.message}</h1>
-    </div>})
+    const messagesComp = messages.map((message: any) => {
+        const sideStyle = message.to === name ? ' bg-teal-600 text-teal-50 mr-2 ml-32 ' : ' dark:text-teal-50 text-slate-500 bg-slate-300 dark:bg-slate-900 ml-2 mr-32 '
 
-    const [curMessage, setCurMessage] = useState('')
+        return (
+            <div key={message._id} className={'p-2 rounded' + sideStyle}>
+                <p className='text-sm '>{message.message}</p>
+            </div>
+        )
+    })
+
+    function handleSendMessage() {
+        sendMessage(name, curMessage)
+        setCurMessage('')
+    }
 
     if (name === '') {
-        return <div className="w-4/6 flex flex-col">
-        <h1>Hehe, make some frens loser</h1>
-    </div>
+        return <div className="flex-grow flex flex-col items-center justify-center">
+            <h1 className='text-xl font-bold text-slate-500 dark:text-teal-50 select-none'>myChatApp</h1>
+            <p className='select-none text-teal-500 text-[10px]'>A MESSAGING WEBAPP</p>
+        </div>
     }
 
     return (
-        <div className="w-4/6 flex flex-col flex-grow border">
-            <div className="flex-grow flex flex-col-reverse p-2 gap-2 overflow-y-scroll">
+        <div className='flex flex-col flex-grow overflow-hidden'>
+            <div className='flex-grow flex flex-col-reverse p-2 gap-2 overflow-y-scroll'>
                 {[...messagesComp].reverse()}
-                {hasMore && <h1 className="text-center border" onClick={() => getMoreChats(name, lastId)}>See More...</h1>}
+                <button className="dark:text-teal-50 text-slate-500  p-2 text-center bg-slate-300 dark:bg-slate-900 rounded" disabled={!hasMore} onClick={() => getMoreChats(name, lastId)}>{hasMore ? 'See more messages...': 'No more messages...'}</button>
             </div>
-            <div className="flex px-32 gap-4 ">
-                <input className="flex-grow" value={curMessage} onChange={(e) => setCurMessage(e.target.value)} onKeyDown={(e) => {if (e.key === 'Enter') {sendMessage(name, curMessage); setCurMessage('')}} } />
-                <button className="" onClick={() => {sendMessage(name, curMessage); setCurMessage('')}}>Send to {name}</button>
+
+            <div className='flex items-center py-4 justify-center border-t border-slate-300 dark:border-slate-900'>
+                <div className='flex w-5/6 gap-4'>
+                    <input className='flex-grow focus:outline focus:outline-teal-600 p-2 rounded bg-teal-50 dark:bg-slate-900 text-sm text-slate-500 dark:text-teal-50 placeholder:text-slate-400 dark:placeholder:text-slate-700' placeholder='type a message...' onChange={(e) => setCurMessage(e.target.value)} onKeyDown={(e) => {if (e.key === 'Enter' && curMessage!== '') {handleSendMessage()}}} value={curMessage} />
+                    <button className='group' onClick={() => handleSendMessage()} disabled={curMessage === ''} >
+                        {sendIcon}
+                    </button>
+                </div>
             </div>
         </div>
     )
