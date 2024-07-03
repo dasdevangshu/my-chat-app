@@ -39,7 +39,7 @@ export default function Home() {
       // console.log('Res: ',res)
       setUser(res.user)
       if (res.user !== null) {
-        // console.log('going to chat here...')
+        console.log('Here 1')
         router.push('/chat')
       }else {
         console.log('else here...')
@@ -61,6 +61,7 @@ export default function Home() {
         console.log(e)
       }
       finally{
+        console.log('Here 3')
         setLoading(false)
       }
     }

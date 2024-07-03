@@ -105,7 +105,8 @@ export default function SignUp() {
             //console.log(res)
             if (res.signedUp === 'true') {
                 setSignUpMessage(res.message)
-                router.push('/')
+                checkAuth()
+                // router.push('/')
             }
             else {
                 setSignUpMessage(res.message)
