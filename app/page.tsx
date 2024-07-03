@@ -19,6 +19,8 @@ export default function Home() {
   const router = useRouter();
   const cookies = useCookies();
 
+  console.log('Here!')
+
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
 
@@ -40,7 +42,7 @@ export default function Home() {
         // console.log('going to chat here...')
         router.push('/chat')
       }else {
-        // console.log('else here...')
+        console.log('else here...')
         router.refresh()
       }
     }

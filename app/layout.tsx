@@ -5,6 +5,8 @@ import { ThemeProvider } from "./components/ThemeProvider";
 import Navbar from "./components/Navbar";
 import { CookiesProvider } from "next-client-cookies/server";
 
+console.log('Here! Layout!')
+
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {

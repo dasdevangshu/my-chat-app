@@ -180,10 +180,10 @@ export default function LogIn() {
 
                     <div className=" w-full flex gap-2 flex-col items-center">
                         <h1 className='text-xl font-bold text-slate-500 dark:text-teal-50 select-none'>LogIn</h1>
-                        <p className={'text-sm text-center h-12 animate-pulse' + logInValidationStyle}>{logInMessage}</p>
-                        <p className={'text-md sm:text-sm h-10 text-center animate-pulse' + usernameValidationStyle}>{usernameValidationMessage}</p>
+                        <p className={'text-sm text-center h-12 mb-2 animate-pulse' + logInValidationStyle}>{logInMessage}</p>
+                        <p className={'text-md sm:text-sm h-10 mb-2 text-center animate-pulse' + usernameValidationStyle}>{usernameValidationMessage}</p>
                         <input className={inputStyle} value={username} onChange={(e) => setUsername(e.target.value)} placeholder="enter your username" />
-                        <p className={'text-md sm:text-sm h-10 text-center animate-pulse' + passwordValidationStyle}>{passwordValidationMessage}</p>
+                        <p className={'text-md sm:text-sm h-10 mb-2 text-center animate-pulse' + passwordValidationStyle}>{passwordValidationMessage}</p>
                         <input className={inputStyle} value={password} onChange={(e) => setPassword(e.target.value)} type="password" placeholder="enter your password" />
                         <button className={buttonStyle} onClick={() => sendLogIn()} disabled={!usernameValid || !passwordValid}>LogIn</button>
                         <button className={buttonStyle} onClick={() => { router.push(`${process.env.NEXT_PUBLIC_API_URL}/login/github`) }}>LogIn using Github</button>

@@ -32,7 +32,7 @@ export default function ChatRequest(props: any) {
 
 
     return (
-        <div className=" border-b border-slate-900 px-8 sm:px-4 py-2 flex items-center justify-between transition duration-150 ease-in-out">
+        <div className=" border-b px-8 sm:px-4 py-2 border-slate-300 dark:border-slate-900 flex items-center justify-between transition duration-150 ease-in-out">
             <div>
                 <h1 className={"text-sm select-none "}><span className="font-bold text-teal-50">{name}</span><span className="text-teal-400"> wants to message you...</span></h1>
                 <div className="flex items-center justify-start gap-4">
