@@ -477,7 +477,7 @@ export default function Chat() {
       });
 
       socketInstance.on('receive_new_message', (data) => {
-        console.log('New message from:', data.from, data)
+        //console.log('New message from:', data.from, data)
         setAllChats((prev: any) => {
           let newData = { ...prev};
           newData[data.from] = [...prev[data.from], data]
@@ -506,7 +506,7 @@ export default function Chat() {
           // let newData: any = JSON.parse(JSON.stringify(prev));
           let newData = { ...prev }
           newData[data.data.to] = []
-          console.log('All Chat Data', prev, data, newData)
+          //console.log('All Chat Data', prev, data, newData)
           return newData;
         })
 

@@ -5,7 +5,7 @@ export async function sendLogInServer(username: string, password: string) {
 
   try {
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
-    console.log("got this", appUrl)
+    //console.log("got this", appUrl)
     //console.log('Username and password: ', username, password)
     const prom = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/login/credentials`, {
       method: 'POST',

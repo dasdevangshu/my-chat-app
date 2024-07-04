@@ -8,6 +8,8 @@ export default async function page() {
   const cookie = cookieStore.get('auth_session')
   const sessionId = cookie ? cookie.value : null
 
+  console.log('Here Page!')
+
   const pStyle = ' dark:text-teal-50 text-slate-500 text-sm '
   const buttonStyle = ' rounded text-slate-500 dark:text-teal-50 p-2 mt-2 text-slate-500 hover:text-teal-50 disabled:hover:text-slate-500 hover:bg-teal-600 disabled:hover:bg-slate-300 bg-slate-300 dark:bg-slate-900 hover:dark:bg-teal-600 disabled:hover:dark:bg-slate-900 font-bold px-4 transition duration-150 ease-in-out '
 
@@ -19,7 +21,7 @@ export default async function page() {
     credentials: 'include'
   });
   const res = await prom.json()
-  // console.log('User:', res)
+  console.log('User:', res)
 
   if (res.user) {
     redirect('/chat')
